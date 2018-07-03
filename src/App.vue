@@ -1,8 +1,9 @@
 <template>
   <div id="app">
-    <div id="nav">
-    </div>
-    <router-view/>
+    <v-app>
+      <!-- <v-toolbar app text-xs-center class="px-5">任务</v-toolbar> -->
+      <router-view/>
+    </v-app>
   </div>
 </template>
 
