@@ -144,8 +144,13 @@ export default class Home extends Vue {
     this.detailconent = '';
   }
   private isDelected() {
-    if(this.flag === '修改')
+    if(this.flag === '修改'){
+      if(this.stus[this.stusId].ctr == true ){
+        this.complete --;
+        console.log('sasas')
+      }
       this.stus.splice(this.stusId,1);
+    } 
     this.sum = this.stus.length;
     this.isDialogShow = false;
     this.title = '';
@@ -176,7 +181,7 @@ p{
     width:100%;
     margin-left: 3%;
     border-bottom: 1px solid #000;
-    margin-top: -42px;
+    margin-top: -37px;
     visibility: none;
   }
   .line{
