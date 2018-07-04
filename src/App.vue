@@ -1,20 +1,33 @@
 <template>
-  <div id="app">
-    <v-app>
-      <!-- <v-toolbar app text-xs-center class="px-5">任务</v-toolbar> -->
-      <router-view/>
-    </v-app>
-  </div>
+  <v-app>
+    <v-toolbar color="indigo lighten-1" dark>
+      <v-toolbar-title>{{sum+"个任务 / "+complete+"个已完成"}}</v-toolbar-title>
+    </v-toolbar>
+    <v-content>
+      <router-view  v-on:sendMsg="msg"></router-view>
+    </v-content>
+  </v-app>
 </template>
+<script>
+  export default {
+  data() {
+    return {
+      sum: 0,
+      complete: 0,
+    };
+  },
+  methods: {
+    msg (n) {
+      console.log(1);
+      this.sum = n[0];
+      this.complete = n[1];
+    },
+    
+  }
+};
+</script>
 
 <style lang="less">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
 #nav {
   padding: 30px;
   a {

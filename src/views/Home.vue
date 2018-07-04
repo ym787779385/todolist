@@ -1,76 +1,66 @@
 <template>
-  <v-container fluid style="padding: 0" >
-    <v-layout row>
-        <v-flex xs12 text-xs-center style="margin-bottom: 20px">
-          <v-card dark color="cyan">
-            <v-card-text class="px-0" >{{sum+"个任务，"+complete+"个已完成"}}</v-card-text>
-          </v-card>
-        </v-flex>
-    </v-layout>
-    <v-layout row warp :key="index" v-for="(stu,index) in stus" >
-      <v-flex xs9 offset-xs1>
-         <v-checkbox :label="`${stu.title}`" v-model="stu.ctr"  @change="changestatus(index)"></v-checkbox>
-        <p :class="{line : !stu.ctr}"></p>
-        <!-- <p>
-        <input type="checkbox" value='index' v-model="stu.ctr" @click="changestatus(index)">
-        <label :class="{line : stu.ctr}" for="index">{{stu.title}}</label>
-        </p> -->
-      </v-flex>
-      <v-flex xs1 >
-         <v-icon @click="isDialogOn(index)">more_vert</v-icon>
-      </v-flex>
-    </v-layout>
-      <v-layout>
-        <v-flex>
-          <v-card>
-           
-            <v-card-text style="height: 10px; position: relative">
-            <v-btn
+    <v-layout fill-height="100%">
+      <v-flex xs12>
+        <v-card> 
+          <!-- 列表 -->
+          <v-list subheader style="padding: 0">
+            <v-list-tile avatar :key="index" v-for="(stu,index) in stus">
+              <v-list-tile-action>
+                <v-checkbox v-model="stu.ctr" @change="changestatus(index)"></v-checkbox>
+              </v-list-tile-action>
+              <v-list-tile-content>
+                <v-list-tile-title :class="{myLabel: stu.ctr}">{{stu.title}}</v-list-tile-title>
+                <v-list-tile-sub-title>{{stu.detailconent}}</v-list-tile-sub-title>
+              </v-list-tile-content>
+              <v-list-tile-action>
+                <v-icon @click="isDialogOn(index)">more_vert</v-icon>
+              </v-list-tile-action>
+            </v-list-tile> 
+          </v-list>
+          <!-- 对话框 -->
+          <v-dialog  v-model="isDialogShow" max-width="390">
+            <v-card>
+              <v-card-title  class="headline">任务</v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    name="input-1-3"
+                    label="标题"
+                    single-line
+                    v-model="title"
+                  ></v-text-field>
+                  <v-text-field
+                    name="input-7-1"
+                    label="任务内容"
+                    multi-line
+                    v-model="detailconent"
+                  ></v-text-field>
+                </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="red darken-1" flat @click.native="isDelected">{{btnText}}</v-btn>
+                <v-btn color="green darken-1" flat @click.native="isSaved">保存</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <!-- 浮动按钮 -->
+           <v-btn
               fab 
               @click='insertDalogOn'
-              absolute
-              top
+              fixed
+              bottom
               dark
               right
-              color="pink"
+              color="purple lighten-1"
             >
               <v-icon>add</v-icon>
             </v-btn>
-          </v-card-text>
         </v-card>
-        </v-flex>
-      </v-layout>
-      <div class="text-xs-center">
-        <v-dialog  v-model="isDialogShow" max-width="390">
-          <v-card>
-            <v-card-title  class="headline">任务</v-card-title>
-              <v-card-text>
-                <v-text-field
-                  name="input-1-3"
-                  label="标题"
-                  single-line
-                  v-model="title"
-                ></v-text-field>
-                <v-text-field
-                  name="input-7-1"
-                  label="任务内容"
-                  multi-line
-                  v-model="detailconent"
-                ></v-text-field>
-              </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="red darken-1" flat @click.native="isDelected">{{btnText}}</v-btn>
-              <v-btn color="green darken-1" flat @click.native="isSaved">保存</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>        
-      </div>
-  </v-container>
+      </v-flex>
+    </v-layout>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from "vue-property-decorator"
 import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 
 @Component({
@@ -78,7 +68,6 @@ import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
     HelloWorld,
   },
 })
-
 
 export default class Home extends Vue {
   private sum: number = 0;
@@ -89,30 +78,26 @@ export default class Home extends Vue {
   private btnText: string = '';
   private detailconent: string = '';
   private flag: string = '';
-  private stus: any[] = [
-    {
-      id: 1,
-      title: '第一次任务',
-      detailconent: '完成就到了快解放',
-      ctr: false,
-    },
-    {
-      id: 2,
-      title: '第二次任务',
-      detailconent: '完成就到了快解放',
-      ctr: false,
-    },
-    {
-      id: 3,
-      title: '第三次任务',
-      detailconent: '完成就到了快解放',
-      ctr: false,
-    },
-  ];
+  private stus: any[] = [];
 
    mounted() {
    this.sum = this.stus.length; 
   }
+
+  @Watch('sum')
+  private sendMsg (n:any, o:any) {
+    console.log("home 触发事件"+this.complete);
+    this.$emit('sendMsg',[this.sum,this.complete]);
+  } 
+
+  @Watch('complete')
+  private sendMsg2 (n:any, o:any) {
+    console.log("home 触发事件"+this.complete);
+    this.$emit('sendMsg',[this.sum,this.complete]);
+  } 
+
+
+
   private isDialogOn(index: number) {
     this.flag = '修改';
     this.btnText = '删除';
@@ -129,7 +114,6 @@ export default class Home extends Vue {
     } else{
       let b = this.stus.length - 1;
       let insertId = (b>=0? this.stus[b].id + 1 : 1);
-      console.log(insertId);
       let a: any = {
         id: insertId,
         title: this.title,
@@ -165,27 +149,23 @@ export default class Home extends Vue {
     if(this.stus[n].ctr == true){
       this.complete ++;
       this.stus[n].ctr == false;
-      console.log('aaaaaaaaaaa');
     }else{
       this.complete --;
        this.stus[n].ctr == true;
     }
-    
   }
-  
 }
 </script>
 
-<style>
-p{
-    width:100%;
-    margin-left: 3%;
-    border-bottom: 1px solid #000;
-    margin-top: -37px;
-    visibility: none;
-  }
-  .line{
-    visibility: hidden;
-  }
+<style scoped>
+
 </style>
+
+<style>
+.myLabel  {
+  text-decoration: line-through;
+}
+</style>
+
+
 
