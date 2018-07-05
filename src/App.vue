@@ -1,14 +1,14 @@
 <template>
   <v-app>
-    <v-toolbar color="indigo lighten-1" dark>
-      <v-toolbar-title>{{sum+"个任务 / "+complete+"个已完成"}}</v-toolbar-title>
+    <v-toolbar color="indigo lighten-1" dark elevation="2" style="position: fixed; z-index: 900;">
+      <v-toolbar-title  style="width: 100%; text-align: center" >{{sum+"个任务 / "+complete+"个已完成"}}</v-toolbar-title>
     </v-toolbar>
-    <v-content>
-      <router-view  v-on:sendMsg="msg"></router-view>
+    <v-content style="margin-top:80px">
+      <router-view @sendMsg="sendGlobalMsg"></router-view>
     </v-content>
   </v-app>
 </template>
-<script>
+<script >
   export default {
   data() {
     return {
@@ -17,25 +17,16 @@
     };
   },
   methods: {
-    msg (n) {
-      console.log(1);
+    sendGlobalMsg (n) {
       this.sum = n[0];
       this.complete = n[1];
     },
     
   }
 };
+
 </script>
 
 <style lang="less">
-#nav {
-  padding: 30px;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
+
 </style>
