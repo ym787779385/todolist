@@ -7,7 +7,7 @@ interface ITodoListItem {
   id: any;
   title: string;
   detailConent: string;
-  ctr: boolean;
+  isChecked: boolean;
 }
 
 type ITodoList = ITodoListItem[];
@@ -58,7 +58,7 @@ const getters: GetterTree<IBaseStore, IBaseStore> = {
   todoListNumber: (state: any) => {
     if (Array.isArray(state.todoList)) {
       localStorage.setItem('todoList',JSON.stringify(state.todoList));
-      return state.todoList.filter((todo: ITodoListItem) => todo.ctr);
+      return state.todoList.filter((todo: ITodoListItem) => todo.isChecked);
     }
   },
 };

@@ -16,7 +16,7 @@ interface ITodoItem {
   id: any,
   title: string,
   detailconent: string,
-  ctr: boolean,
+  isChecked: boolean,
 }
 @Component
 export default class App extends Vue  {
