@@ -1,47 +1,8 @@
 <template>
     <v-layout fill-height="100%">
       <v-flex xs12>
-        <!-- <v-card>  -->
           <!-- 列表 -->
-          <v-list subheader style="padding: 0">
-             <v-list-tile avatar :key="index" v-for="(stu,index) in todoItemList">
-              <v-list-tile-action>
-                <v-checkbox v-model="stu.ctr" @change="changeStatus(index)"></v-checkbox>
-              </v-list-tile-action>
-              <v-list-tile-content>
-                <v-list-tile-title :class="{myLabel: stu.ctr}">{{stu.title}}</v-list-tile-title>
-                <v-list-tile-sub-title>{{stu.detailconent}}</v-list-tile-sub-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-icon @click="controlDialog(index)">more_vert</v-icon>
-              </v-list-tile-action>
-            </v-list-tile> 
-          </v-list>
-          <!-- 对话框 -->
-          <v-dialog  v-model="isDialogShow" max-width="390">
-            <v-card>
-              <v-card-title  class="headline">任务</v-card-title>
-                <v-card-text>
-                  <v-text-field
-                    name="input-1-3"
-                    label="标题"
-                    single-line
-                    v-model="title"
-                  ></v-text-field>
-                  <v-text-field
-                    name="input-7-1"
-                    label="任务内容"
-                    multi-line
-                    v-model="detailconent"
-                  ></v-text-field>
-                </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="red darken-1" flat @click.native="delectTodoItem">{{btnText}}</v-btn>
-                <v-btn color="green darken-1" flat @click.native="editTodoItem">保存</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+          <TodoList  @sendMsg="receiveMsg"></TodoList>
           <!-- 浮动按钮 -->
            <v-btn
               fab 
@@ -54,13 +15,39 @@
             >
               <v-icon>add</v-icon>
             </v-btn>
-        <!-- </v-card> -->
+            <!-- 对话框 -->
+             <v-dialog  v-model="isDialogShow" max-width="390">
+              <v-card>
+                <v-card-title  class="headline">任务</v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    name="input-1-3"
+                    label="标题"
+                    single-line
+                    v-model="title"
+                  ></v-text-field>
+                  <v-text-field
+                    name="input-7-1"
+                    label="任务内容"
+                    multi-line
+                    v-model="detailConent"
+                  ></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="red darken-1" flat @click.native="delectTodoItem">{{btnText}}</v-btn>
+                  <v-btn color="green darken-1" flat @click.native="editTodoItem">保存</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+       
       </v-flex>
     </v-layout>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator"
+import TodoList from "@/components/TodoList.vue"
 import { watch } from 'fs';
 
 interface ITodoItem {
@@ -68,118 +55,79 @@ interface ITodoItem {
   title: string,
   detailconent: string,
   ctr: boolean,
-
 }
 
-@Component({})
+@Component({
+  components: {
+    TodoList
+  },
+})
 export default class Home extends Vue {
-  private sum: number = 0;
-  private complete: number = 0;
   private isDialogShow: boolean = false;
-  private stusId: number = -1;
   private title: string = '';
-  private btnText: string = '';
-  private detailconent: string = '';
-  private flag: string = '';
+  private detailConent: string = '';
+  private btnText: string = '删除';
+  private listItemId: number = 0;
+  private flag: number = 1;
   private todoItemList: ITodoItem[] = [];
-
-  mounted() {
-    var s = JSON.parse(JSON.stringify(localStorage.getItem('list')));
-    s= JSON.parse(s);
-    this.todoItemList = s;
-    console.log(s);
-    // console.log(s);
-    this.todoItemList = (s === null ? []:s)
-    this.sum = this.todoItemList.length;
-    var c = JSON.parse(JSON.stringify(localStorage.getItem('complete')));
-    var c= JSON.parse(c);
-    this.complete = (c === null ? 0: c);
-  }
-
-  @Watch('sum')
-  private sendMsg (n:any, o:any) {
-    console.log("home 触发事件"+this.complete);
-    this.$emit('sendMsg',[this.sum,this.complete]);
-    localStorage.setItem('list', JSON.stringify(this.todoItemList));
-  } 
-
-  @Watch('complete')
-  private sendMsg2 (n:any, o:any) {
-    console.log("home 触发事件"+this.complete);
-    this.$emit('sendMsg',[this.sum,this.complete]);
-    localStorage.setItem('complete',  JSON.stringify(this.complete));
-  } 
-
-  @Watch('isDialogShow')
-  private clearInput (n:any, o:any) {
-    if(n == false){
-      this.title = '';
-      this.detailconent = '';
-      console.log("清空啦");
-    }else{
-      console.log('显示');
-    }
-  } 
-
-  private controlDialog(index: number) {
-    this.flag = '修改';
-    this.btnText = '删除';
-    this.stusId = index;
+  
+  private receiveMsg(n: any) {
     this.isDialogShow = true;
-    this.title = this.todoItemList[index].title;
-    this.detailconent = this.todoItemList[index].detailconent;
+    console.log(n);
+    this.title = n.title;
+    this.detailConent = n.cont;
+    this.listItemId = n.index;
+  }
+  private clear (){
+    this.title = '';
+    this.detailConent = '';
   }
   private editTodoItem() {
-    if(this.flag === '修改'){
-      this.todoItemList[this.stusId].title = this.title;
-      this.todoItemList[this.stusId].detailconent = this.detailconent;
-      this.stusId = -1;
-    } else{
-      let b = this.todoItemList.length - 1;
-      let insertId = (b>=0? this.todoItemList[b].id + 1 : 1);
-      let a: any = {
-        id: insertId,
-        title: this.title,
-        detailconent: this.detailconent,
-        ctr: false,
+    if(this.flag === 2){
+      var list={
+      id: 6,
+      title: this.title,
+      detailConent: this.detailConent,
+      ctr: false,
       };
-      this.todoItemList.push(a);
+      this.$store.dispatch('insertListAction',list);
+      console.log('增加');
+    } else {
+      let a = {
+        index: this.listItemId,
+        title: this.title,
+        detailConent: this.detailConent,
+      }
+      this.$store.dispatch('updateListAction',a);
+      console.log('修改');
     }
-    this.sum = this.todoItemList.length;
-    this.isDialogShow = false;
+    this.isDialogShow = !this.isDialogShow;
+    this.clear();
+    this.flag = 1;
   }
   private delectTodoItem() {
-    if(this.flag === '修改'){
-      if(this.todoItemList[this.stusId].ctr == true ){
-        this.complete --;
+    if(this.flag === 1){
+      console.log(this.listItemId);
+      this.$store.dispatch('deleteListAction',this.listItemId);
+      this.isDialogShow = false;
+      } else{
+      this.clear();
       }
-      this.todoItemList.splice(this.stusId,1);
-    } 
-    this.sum = this.todoItemList.length;
-    this.isDialogShow = false;
+      this.flag = 1;
+      this.clear();
   }
   private insertDialog() {
-    this.isDialogShow = true;
-    this.flag = '增加';
-    this.btnText = '取消';
-  }
-  private changeStatus(n: any) {
-    if(this.todoItemList[n].ctr == true){
-      this.complete ++;
-      this.todoItemList[n].ctr == false;
-    }else{
-      this.complete --;
-       this.todoItemList[n].ctr == true;
-    }
-    localStorage.setItem('list', JSON.stringify(this.todoItemList));
+    this.flag =2;
+    this.isDialogShow = !this.isDialogShow;
+    this.clear();
   }
 }
 </script>
 
 <style scoped>
-  .myLabel  {
+  /* .myLabel  {
   text-decoration: line-through;
-}
+} */
 </style>
 
 
